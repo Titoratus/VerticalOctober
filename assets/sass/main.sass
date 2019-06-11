@@ -1,0 +1,258 @@
+$regular: "pt_sans-regular", sans-serif
+$bold: "pt_sans-bold", sans-serif
+
+$accent: #f3cf1e
+
+@function em($px, $base: 16px)
+	@return ($px / $base ) * 1em
+
+*
+	margin: 0
+	padding: 0
+	box-sizing: border-box
+	outline: none
+
+html
+	min-height: 100%
+
+body
+	position: relative
+	height: 100%
+	font: 16px $regular
+
+#layout-content
+	min-height: 100%
+	padding-bottom: 70px
+	margin-bottom: -45px
+
+embed
+	background: transparent
+
+b, strong, h1, h2, h3, h4, h5, h6, th
+	font-family: $bold
+	font-weight: normal
+
+ul
+	list-style-type: none
+
+.center
+	text-align: center
+
+.right
+	text-align: right
+
+.stripe-loading-indicator
+	display: none!important
+
+.main-form
+	input[type="submit"]
+		background: #6fbd59
+		border: none
+		color: #fff
+		padding: 14px
+		text-shadow: 0 5px 0 rgba(0,0,0,.08)
+		margin-top: 86px
+		cursor: pointer
+		box-shadow: 0 5px 0 rgba(0,0,0,.08)
+		width: 239px
+		text-align: center
+		border-radius: 5px
+		font: 21px $bold
+
+	.field-error
+		font: 17px $bold
+		color: #f17b7b
+		margin-top: 6px
+
+	.part_type
+		display: inline-block
+		background: #f5f7f8
+		font: 17px $bold
+		color: rgba(26, 26, 26, 0.8)
+		border-radius: 5px
+		overflow: hidden
+		text-transform: uppercase
+		letter-spacing: .5px
+		.active
+			display: inline-block
+			background: #ffe16b
+			border-radius: 5px
+		span
+			display: inline-block
+			padding: 14px 26px
+			&:nth-child(2).active
+				box-shadow: -4px 0 0 #e6e7e7
+			&:first-child.active
+				box-shadow: 4px 0 0 #e6e7e7
+		a
+			color: rgba(26, 26, 26, 0.8)
+
+	label[for='form_imgs']
+		color: #fff!important
+		font: 17px $bold!important
+		& + p
+			color: #7a828a
+			font-size: 15px
+			margin-top: 10px
+
+	.extra_part
+		margin: 20px 0
+		margin-bottom: 34px
+
+	.part_desc
+		position: relative
+		label
+			max-width: 700px
+		img
+			position: absolute
+			right: -23px
+			bottom: 136px
+		textarea
+			resize: none
+
+	.section-title
+		padding-bottom: 7px
+		margin-bottom: 34px
+		font: 27px $bold
+		color: #95a7b9
+		margin-top: 90px
+		border-bottom: 2px dashed #95a7b9
+
+	.warning
+		line-height: 1.67!important
+		svg
+			vertical-align: top
+			margin-right: 5px
+	
+	.group-btn
+		padding: 10px 15px
+		border: 2px dashed #ced6de
+		border-radius: 5px
+		display: inline-block
+		margin-right: 20px
+		margin-bottom: 20px
+		font: 17px/1.65 $bold
+		color: #b0bfce
+		cursor: pointer
+		&:hover
+			border-color: #b4bfcb
+		svg
+			vertical-align: middle
+			margin-top: -3px
+
+	.del-btn
+		color: #fab7ac
+		margin-top: 40px
+		border-color: #fab7ac
+		&:hover
+			border-color: #f99b8b
+			color: #f99b8b
+	
+	.submit-info
+		color: #7a828a
+		opacity: .8
+		font-size: 15px
+		position: relative
+		top: 10px
+
+.page-home h1
+	font: em(40px) $bold
+	margin-bottom: 100px
+	color: #00adef
+
+.page-status
+	h4
+		font: em(21px) $bold
+	.ui.button
+		background: #00adef
+		color: #fff
+		&:hover
+			background: #069dd6
+	span[class^='status']
+		font: em(18px) $bold
+	.status-error
+		color: #ef0000
+	.status-success
+		color: #26a52b
+	.status-warn
+		color: #d48a48
+
+header
+	background: linear-gradient(#00adef 20%, #2ac5f3, #fff)
+	padding-top: 40px
+	padding-bottom: 100px
+	position: relative
+	margin-bottom: 100px
+	&::after
+		content: ''
+		display: block
+		width: 100%
+		height: 130px
+		background: url(../images/clouds.png)
+		position: absolute
+		bottom: -40px
+		left: 0
+
+	ul
+		text-align: center
+		li
+			display: inline-block
+			margin: 0 24px
+			color: #fff
+			a
+				font-size: em(15px)
+				color: #fff
+				&:hover
+					text-decoration: underline
+					color: #fff
+
+.layout-content
+	color: #333
+
+.form_end
+	h2
+		color: #82b089
+		margin-bottom: 30px
+	h3
+		margin-top: 0
+
+		span
+			background: #82b089
+			color: #fff
+			border-radius: 4px
+			padding: 4px 10px
+	
+	.form_end_info
+		margin-top: 30px
+		a
+			text-decoration: underline
+
+.check-status
+	margin-bottom: 20px
+
+// Small devices (landscape phones, 576px and up)
+// @media (min-width: 576px) { ... }
+
+// // Medium devices (tablets, 768px and up)
+// @media (min-width: 768px) { ... }
+
+// // Large devices (desktops, 992px and up)
+// @media (min-width: 992px) { ... }
+
+// // Extra large devices (large desktops, 1200px and up)
+// @media (min-width: 1200px) { ... }
+
+// Extra small devices (portrait phones, less than 576px)
+// @media (max-width: 575.98px)
+
+// // Small devices (landscape phones, less than 768px)
+// @media (max-width: 767.98px)
+
+// Medium devices (tablets, less than 992px)
+@media (max-width: 991.98px)
+	.part_desc img
+		display: none
+
+
+// // Large devices (desktops, less than 1200px)
+// @media (max-width: 1199.98px) { ... }
