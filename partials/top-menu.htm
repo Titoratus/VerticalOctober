@@ -1,0 +1,31 @@
+[viewBag]
+==
+use Estar\Vertical\Models\Settings;
+
+function onStart()
+{
+	$this['finance'] = Settings::instance()->finance->getPath();
+	$this['rules'] = Settings::instance()->rules->getPath();
+	$this['press'] = Settings::instance()->press->getPath();
+}
+==
+<header>
+	<div class="containter">
+		<div class="row">
+			<div class="col-12">
+				
+				<nav>
+					<ul>
+						{% if nothome is defined %}<li><a href="{{ url('/') }}">Главная</a></li>
+						{% else %}<li><a href="{{ url('status') }}">Статус заявки</a></li>{% endif %}
+						<li><a href="{{ finance }}">Финансовые условия</a></li>
+						<li><a href="{{ rules }}">Положение</a></li>
+						<li><a href="{{ press }}">Пресс-релиз</a></li>
+						<li>konkursvertikal@mail.ru</li>
+					</ul>
+				</nav>
+
+			</div>
+		</div>
+	</div>
+</header>
