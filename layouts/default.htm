@@ -1,0 +1,48 @@
+description = "Default layout"
+==
+<!DOCTYPE html>
+<html>
+    <head>
+    	<meta charset="UTF-8">       
+        <title>{{ this.page.title }}</title>
+        <script>function loadFont(t,e,o,n){function a(){if(!window.FontFace)return!1;var t=new FontFace("t",'url("data:application/font-woff2,") format("woff2")',{}),e=t.load();try{e.then(null,function(){})}catch(t){}return"loading"===t.status}var s=navigator.userAgent;if(window.addEventListener&&(!s.match(/(Android (2|3|4.0|4.1|4.2|4.3))|(Opera (Mini|Mobi))/)||s.match(/Chrome/))){var l={};try{l=localStorage||{}}catch(t){}var d="x-font-"+t,r=d+"url",c=d+"css",i=l[r],u=l[c],f=document.createElement("style");if(f.rel="stylesheet",document.head.appendChild(f),!u||i!==e&&i!==o){var w=o&&a()?o:e,m=new XMLHttpRequest;m.open("GET",w),m.onload=function(){m.status>=200&&m.status<400&&(l[r]=w,l[c]=m.responseText,n||(f.textContent=m.responseText))},m.send()}else f.textContent=u}}loadFont("pt_sans-regular","{{'assets/css/pt_sans-regular.css'|theme}}"),loadFont("pt_sans-bold","{{'assets/css/pt_sans-bold.css'|theme}}");</script>
+        <!--Old-->  
+        <meta name="title" content="{{ this.page.meta_title }}">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="author" content="E.Starosvetskii">
+        <meta name="generator" content="OctoberCMS">
+        <link rel="icon" type="image/png" href="{{ 'assets/images/favicon.png'|theme }}">
+        {% styles %}
+        <link rel="stylesheet" href="{{ [
+                            'assets/vendor/bootstrap/bootstrap-grid.min.css',
+                            'assets/vendor/Semantic-UI/semantic.css',
+                            ]|theme }}">
+        <link rel="stylesheet" href="{{ 'assets/css/main.min.css'|theme }}">
+        <!-- HTML5 shim, for IE6-8 support of HTML5 elements. All other JS at the end of file. -->
+		<!--[if lt IE 9]>
+			<script src="{{ [
+				'assets/javascript/html5shiv.js',
+				'assets/javascript/respond.min.js',
+			]|theme }}"></script>
+		<![endif]-->
+    </head>
+    <body class="page-{{ this.page.id }} layout-{{ this.layout.id }}">
+        <!-- Content -->
+        <div id="layout-content">
+            {% partial 'top-menu' %}
+            {% page %}
+        </div>
+
+        <!-- Scripts -->
+        <script src="{{ [
+            'assets/javascript/jquery.min.js',         
+            'assets/javascript/app.js',
+            'assets/vendor/feather/feather.min.js',
+            'assets/vendor/Semantic-UI/semantic.min.js',
+        ]|theme }}"></script>
+        {% framework extras %}
+        {% scripts %}
+
+        <!-- <footer>{{ "now"|date("Y") }} Designed by <a href="https://vk.com/id43044705">E. Starosvetskii</a></footer> -->
+    </body>
+</html>
