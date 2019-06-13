@@ -1,0 +1,705 @@
+title = "Главная"
+url = "/"
+layout = "default"
+is_hidden = 0
+==
+<?php
+use Estar\Vertical\Models\Form;
+
+function onStart()
+{
+	if (get('isgroup'))
+		$this['isgroup'] = 1;
+
+	if (Session::has('fid'))
+		$this['fid'] = Session::pull('fid');
+}
+
+function onSubmit()
+{
+	$data = post();
+
+	$rules = [
+	    'part_name' => 'required',
+	    'part_surname' => 'required_if:type,1',
+	    'part_place' => 'required',
+	    'part_age' => 'required',
+	    'form' => 'required',
+	    'kind' => 'required_if:type,0',
+	    'education' => 'required',
+	    'nomination' => 'required',
+	    'road_time' => 'required_if:part_place,1',
+	    'subnomin' => 'required_if:nomination,0,3,4,5,6',
+	    'instr_type' => 'required_if:nomination,1',
+	    'instr_name' => 'required_if:nomination,1',
+	    'genre' => 'required',
+	    'part_desc' => 'required',
+	    'p_name' => 'required',
+	    'p_author' => 'required',
+	    'p_time' => 'required|regex:/[0-9]{1,2}:[0-9]{1,2}/',
+	    'p_mics' => 'required|numeric',
+	    'p_stands' => 'required|numeric',
+	    'head' => 'required_if:education,0,1,3',
+	    'head_name' => 'required_if:education,0,1,3',
+	    'head_surname' => 'required_if:education,0,1,3',
+	    'head_father' => 'required_if:education,0,1,3',
+	    'head_phone' => 'required_if:education,0,1,3|numeric',
+	    'part_phone' => 'required|numeric',
+	    'school' => 'required',
+	    'dir_name' => 'required',
+	    'dir_surname' => 'required',
+	    'dir_father' => 'required',
+	    'dir_email' => 'required|email',
+	    'part_num' => 'required_if:type,0',
+	    'part_email' => 'email'
+	];
+
+	$messages = [
+	    '*.required' => 'Обязательное поле',
+	    '*.required_if' => 'Обязательное поле',
+	    // 'form_images.image' => 'Файлы должны быть с расширением jpeg, png, bmp, или gif',
+	    '*.email' => 'Неверный формат. Например, example@mail.ru',
+	    'p_time.regex' => 'Формат: 00:00',
+	    '*.numeric' => 'Только цифры',
+	    '*.email' => 'Формат: example@mail.ru'
+	];
+
+	$validation = Validator::make($data, $rules, $messages);
+	if ($validation->fails()) {
+	    throw new ValidationException($validation);
+	}
+	
+	$data = post();
+	isset($data['extra_part']) ? $data['extra_part'] = 1 : $data['extra_part'] = 0;
+	$data['part_name'] = isset($data['part_surname']) ? ($data['part_name'].' '.$data['part_surname']) : $data['part_name'];
+	if (isset($data['head_name'])) $data['head_name'] = $data['head_name'].' '.$data['head_father'].' '.$data['head_surname'];
+	$data['dir_name'] = $data['dir_name'].' '.$data['dir_father'].' '.$data['dir_surname'];
+	if (isset($data['con_name']))
+		$data['con_name'] = $data['con_name'].' '.$data['con_father'].' '.$data['con_surname'];
+	if (isset($data['chor_name']))
+		$data['chor_name'] = $data['chor_name'].' '.$data['chor_father'].' '.$data['chor_surname'];
+	if (isset($data['prod_name']))
+		$data['prod_name'] = $data['prod_name'].' '.$data['prod_father'].' '.$data['prod_surname'];
+	if (isset($data['rep_name']))
+		$data['rep_name'] = $data['rep_name'].' '.$data['rep_father'].' '.$data['rep_surname'];
+	$data['progs'] = [[
+		'p_name' => $data['p_name'],
+		'p_author' => $data['p_author'],
+		'p_time' => $data['p_time'],
+		'p_mics' => $data['p_mics'],
+		'p_stands' => $data['p_stands']
+	]];
+
+	$data['form_images'] = Input::file('form_images');
+
+	unset($data['part_surname']);
+	unset($data['head_surname']);
+	unset($data['head_father']);
+	unset($data['dir_father']);
+	unset($data['dir_surname']);
+	unset($data['rep_father']);
+	unset($data['rep_surname']);
+	unset($data['prod_father']);
+	unset($data['prod_surname']);
+	unset($data['chor_surname']);
+	unset($data['chor_father']);
+	unset($data['con_father']);
+	unset($data['con_surname']);
+	unset($data['p_stands']);
+	unset($data['p_mics']);
+	unset($data['p_time']);
+	unset($data['p_author']);
+	unset($data['p_name']);
+
+	$form = Form::make($data);
+	$form->form_images = Input::file('form_images');
+	$form->save();
+
+	Session::put('fid', $form->id);
+}
+?>
+==
+{% if fid is defined %}
+<div class="container form_end">
+	<div class="row justify-content-center center">
+		<div class="col-md-6">
+			
+			<h2>Ваша заявка успешно отправлена!<br>Ожидайте подтверждения.</h2>
+			<h3>Номер вашей заявки: <span>{{ fid }}</span></h3>
+
+			<p class="form_end_info">Как только заявка будет подтверждена, вы получите уведомление на Email. Также вы можете узнать статус заявки в разделе “<a href="{{ url('status') }}">Статус заявки</a>”.</p>
+
+		</div>
+	</div>
+</div>
+{% else %}
+<div class="container">
+	<div class="row">
+		<div class="col-md-12">
+			
+			<h1>Заявка на конкурс “Вертикаль-Личность” 2019</h1>
+
+			<form enctype="multipart/form-data"
+					accept-charset="UTF-8"
+			    class="ui form main-form"
+			    data-request="onSubmit"
+			    data-request-validate
+			    data-request-files
+			    data-request-redirect="./">
+
+				<input type="hidden" name="type" value="{% if isgroup is defined %}0{% else %}1{% endif %}">
+
+				<div class="row">
+					<div class="col-md-6">
+						
+						<div class="two fields">
+							<div class="ten wide field">
+								<div class="part_type">
+									{% if isgroup is defined %}<span><a href="./">Участник</a></span>{% else %}<span class="active">Участник</span>{% endif %}
+									{% if isgroup is defined %}<span class="active">Коллектив</span>{% else %}<span><a href="?isgroup=1">Коллектив</a></span>{% endif %}
+								</div>	
+							</div>
+							<div class="seven field">
+								<div class="ui input fluid">
+									<select name="form" class="ui fluid dropdown">
+									  <option value="">Форма участия</option>
+									  <option value="1">Очная</option>
+									  <option value="0">Заочная</option>
+									</select>
+								</div>
+								<div data-validate-for="form" class="field-error"></div>
+							</div>
+						</div>
+
+						{% if isgroup is defined %}
+							<div class="two fields">
+
+								<div class="field wide twelve">
+									<div class="ui input fluid">
+									  <input type="text" name="part_name" placeholder="Название коллектива" autocomplete="off">
+									</div>
+									<div data-validate-for="part_name" class="field-error"></div>
+								</div>
+
+								<div class="field wide four">
+									<div class="ui input fluid">
+										<select name="part_num" class="ui fluid dropdown">
+											<option value="">Кол-во</option>
+											<option value="2">2</option>
+											<option value="3">3</option>
+											<option value="4">4</option>
+											<option value="5">5</option>
+											<option value="6">6</option>
+											<option value="7">7</option>
+											<option value="8">8</option>
+											<option value="9">9</option>
+											<option value="10">10</option>
+											<option value="11">11</option>
+											<option value="12">12</option>
+											<option value="13">13</option>
+											<option value="14">14</option>
+											<option value="15">15</option>
+										</select>
+									</div>
+									<div data-validate-for="part_num" class="field-error"></div>
+								</div>
+
+							</div>
+						{% else %}
+							<div class="two fields wide">
+								<div class="field">
+									<div class="ui input fluid">
+									  <input type="text" name="part_name" placeholder="Полное имя" autocomplete="off">
+									</div>
+									<div data-validate-for="part_name" class="field-error"></div>
+								</div>
+								
+								<div class="field">
+									<div class="ui input fluid">
+										<input type="text" name="part_surname" placeholder="Фамилия" autocomplete="off">
+									</div>
+									<div data-validate-for="part_surname" class="field-error"></div>
+								</div>
+							</div>
+						{% endif %}
+
+						<div class="two fields">
+
+							<div class="field">
+								<div class="ui input fluid">
+									<select name="part_age" class="ui fluid dropdown">
+									  <option value="">Возрастная категория</option>
+									  <option value="0">3-6 лет</option>
+									  <option value="1">7-9 лет</option>
+									  <option value="2">10-12 лет</option>
+									  <option value="3">13-15 лет</option>
+									  <option value="4">16-19 лет</option>
+									  <option value="5">20-25 лет</option>
+									  <option value="6">25 лет и старше</option>
+									  <option value="7">Смешанная</option>
+									  <option value="8">Профессионал</option>
+									  <option value="9">Мастер и ученик</option>
+									</select>
+								</div>
+								<div data-validate-for="part_age" class="field-error"></div>
+							</div>
+
+							<div class="field">
+								<div class="ui input fluid">
+									<select name="part_place" class="ui fluid dropdown part_place">
+									  <option value="">Место проживания</option>
+									  <option value="0">Красноярск</option>
+									  <option value="1">{% if isgroup is defined %}Иногородние{% else %}Иногородний{% endif %}</option>
+									</select>
+								</div>
+								<div data-validate-for="part_place" class="field-error"></div>
+							</div>
+
+						</div>
+
+						<div class="two fields road_time" style="display: none">
+							<div class="field eight wide">
+								<div class="ui input">
+									<input type="text" name="road_time" autocomplete="off" placeholder="Время в пути в часах" disabled>
+								</div>
+								<div data-validate-for="road_time" class="field-error"></div>
+							</div>
+						</div>
+
+						<div class="two fields">
+
+							<div class="field">
+								<div class="ui input">
+									<select name="education" class="ui fluid dropdown education">
+									  <option value="">Категория образования</option>
+									  <option value="0">Профессиональное</option>
+									  <option value="1">Самостоятельное</option>
+									  <option value="2">{% if isgroup is defined %}Профессионалы{% else %}Профессионал{% endif %}</option>
+									  <option value="3">Любительская студия</option>
+									</select>
+								</div>
+								<div data-validate-for="education" class="field-error"></div>
+							</div>
+
+							<div class="field">
+								<div class="ui input">
+									<select name="nomination" class="ui fluid dropdown nomination">
+									  <option value="">Номинация</option>
+									  <option value="0">Вокальное исполнительство</option>
+									  <option value="1">Инструментальное исполнительство</option>
+									  <option value="2">Изобразительное искусство</option>
+									  <option value="3">Художественное слово</option>
+									  <option value="4">Театр</option>
+									  <option value="5">Цирковое искусство</option>
+									  <option value="6">Хореография</option>
+									</select>
+								</div>
+								<div data-validate-for="nomination" class="field-error"></div>
+							</div>
+
+						</div>
+
+						<div class="two fields subnomination" style="display: none">
+
+							<div class="field">
+								<div class="ui input">
+									<select name="subnomin" class="ui fluid dropdown subnomin" disabled>
+									  <option value="">Подноминация</option>
+									</select>
+								</div>
+								<div data-validate-for="subnomin" class="field-error"></div>
+							</div>
+
+						</div>
+
+						<div class="two fields instruments" style="display: none">
+
+							<div class="field">
+								<div class="ui input">
+									<select name="instr_type" class="ui fluid dropdown instr_type" disabled>
+									  <option value="">Тип инструментов</option>
+									  <option value="0">Ударные</option>
+									  <option value="1">Духовые</option>
+									  <option value="2">Струнные</option>
+									  <option value="3">Народные</option>
+									  <option value="4">Фортепиано</option>
+									  <option value="5">Электронные инструменты</option>
+									</select>
+								</div>
+								<div data-validate-for="instr_type" class="field-error"></div>
+							</div>
+
+							<div class="field">
+								<div class="ui input">
+									<input type="text" name="instr_name" placeholder="Название инструментов" disabled>
+								</div>
+								<div data-validate-for="instr_name" class="field-error"></div>
+							</div>
+
+						</div>
+
+						<div class="field form_imgs" style="display: none">
+
+						  <label for="form_imgs" class="ui green button">
+						    <i class="ui upload icon"></i> 
+						    Загрузить фото
+						  </label>
+							
+							<p>*можно выбрать несколько файлов</p>
+
+						  <input type="file" onchange="fileEvent()" name='form_images[]' accept="image/*" class="inputfile" id="form_imgs" multiple>
+
+							<div data-validate-for="form_images" class="field-error"></div>
+         		</div>
+
+						<div class="two fields">
+
+							<div class="field">
+								<div class="ui input">
+									<select name="genre" class="ui fluid dropdown">
+									  <option value="">Жанровое направление</option>
+									  <option value="0">Академическое</option>
+									  <option value="1">Народное</option>
+									  <option value="2">Эстрадное</option>
+									</select>
+								</div>
+								<div data-validate-for="genre" class="field-error"></div>
+							</div>
+
+							{% if isgroup is defined %}
+								<div class="field">
+										<div class="ui input">
+											<select name="kind" class="ui fluid dropdown">
+											  <option value="">Вид</option>
+											  <option value="0">Ансамблевое</option>
+											  <option value="1">Хоровое</option>
+											  <option value="2">Оркестр</option>
+											  <option value="3">ВИА (инструментальный ансамбль)</option>
+											  <option value="4">Шоу</option>
+											  <option value="5">Коллективное творчество (в ИЗО)</option>
+											</select>
+										</div>
+										<div data-validate-for="kind" class="field-error"></div>
+									</div>
+							{% endif %}
+
+						</div>
+
+						<div class="ui checkbox extra_part">
+							<input type="checkbox" name="extra_part" id="extra_part">
+							<label for="extra_part">Участие в дополнительной номинации</label>
+						</div>
+						<div data-validate-for="extra_part" class="field-error"></div>
+
+					</div>
+				</div>
+
+				<div class="row">
+					<div class="col-12">
+
+					  <div class="field part_desc">
+					  	<img src="{{ 'assets/images/singer.jpg'|theme }}" alt="">
+					    <label>Для публикации статьи об участнике на информационном сайте организаторов фестиваля необходима краткая характеристика (звание, самый последний завоёванный титул)</label>
+					    <textarea name="part_desc" rows="5"></textarea>
+					  </div>
+					  <div data-validate-for="part_desc" class="field-error"></div>
+						
+					</div>
+				</div>
+
+				<div class="row">
+					<div class="col-12">
+						
+						<h4 class="section-title">Конкурсная программа</h4>
+
+						<div class="ui warning visible message"><i data-feather="alert-circle"></i> Писать в верной последовательности, грамматически точно. Например, Ария Канио из оперы Руджеро Леонковалло "Паяцы"</div>
+
+						<div class="two fields">
+
+							<div class="field">
+								<div class="ui input">
+									<input type="text" name="p_name" placeholder="Название произведения" autocomplete="off">
+								</div>
+								<div data-validate-for="p_name" class="field-error"></div>
+							</div>
+
+							<div class="field">
+								<div class="ui input">
+									<input type="text" name="p_author" placeholder="Авторы. Полное имя и фамилия" autocomplete="off">
+								</div>
+								<div data-validate-for="p_author" class="field-error"></div>
+							</div>
+
+						</div>
+
+						<div class="three fields">
+							
+							<div class="three wide field">
+								<div class="ui input">
+									<input type="text" name="p_time" placeholder="Хронометраж" autocomplete="off">
+								</div>
+								<div data-validate-for="p_time" class="field-error"></div>
+							</div>
+
+							<div class="three wide field">
+								<div class="ui input">
+									<input type="text" name="p_mics" placeholder="Микрофонов" autocomplete="off">
+								</div>
+								<div data-validate-for="p_mics" class="field-error"></div>
+							</div>
+
+							<div class="three wide field">
+								<div class="ui input">
+									<input type="text" name="p_stands" placeholder="Стоек" autocomplete="off">
+								</div>
+								<div data-validate-for="p_stands" class="field-error"></div>
+							</div>
+
+						</div>
+
+
+						<div class="row">
+							<div class="col-12 head_info">
+								
+								<h4 class="section-title">Информация о руководителе</h4>
+
+								<div class="two fields">
+
+									<div class="field">
+										<div class="ui input">
+											<input type="text" name="head" placeholder="Руководитель (например, мама, папа, преподаватель)" autocomplete="off">
+										</div>
+										<div data-validate-for="head" class="field-error"></div>
+									</div>
+
+									<div class="field">
+										<div class="ui input">
+											<input type="text" name="head_name" placeholder="Полное имя">
+										</div>
+										<div data-validate-for="head_name" class="field-error"></div>
+									</div>
+
+								</div>
+
+								<div class="two fields">
+
+									<div class="field">
+										<div class="ui input">
+											<input type="text" name="head_surname" placeholder="Фамилия">
+										</div>
+										<div data-validate-for="head_surname" class="field-error"></div>
+									</div>
+
+									<div class="field">
+										<div class="ui input">
+											<input type="text" name="head_father" placeholder="Отчество">
+										</div>
+										<div data-validate-for="head_father" class="field-error"></div>
+									</div>
+
+								</div>
+
+								<div class="two fields">
+
+									<div class="field">
+										<div class="ui input">
+											<input type="text" name="head_phone" placeholder="Телефон руководителя">
+										</div>
+										<div data-validate-for="head_phone" class="field-error"></div>
+									</div>
+
+									<div class="field">
+										<div class="ui input">
+											<input type="text" name="part_phone" placeholder="Телефон участника">
+										</div>
+										<div data-validate-for="part_phone" class="field-error"></div>
+									</div>
+
+								</div>
+
+								<div class="two fields">
+
+									<div class="field">
+										<div class="ui input">
+											<input type="text" name="part_email" placeholder="Email участника (необязательно)">
+										</div>
+										<div data-validate-for="part_email" class="field-error"></div>
+									</div>
+
+									<div class="field">
+										<div class="ui input">
+											<input type="text" name="school" placeholder="Учреждение, представляющее участника">
+										</div>
+										<div data-validate-for="school" class="field-error"></div>
+									</div>
+
+								</div>
+
+								<div class="two fields">
+
+									<div class="field">
+										<div class="ui input">
+											<input type="text" name="dir_name" placeholder="Полное имя директора учреждения">
+										</div>
+										<div data-validate-for="dir_name" class="field-error"></div>
+									</div>
+
+									<div class="field">
+										<div class="ui input">
+											<input type="text" name="dir_surname" placeholder="Фамилия">
+										</div>
+										<div data-validate-for="dir_surname" class="field-error"></div>
+									</div>
+
+								</div>
+
+								<div class="two fields">
+
+									<div class="field">
+										<div class="ui input">
+											<input type="text" name="dir_father" placeholder="Отчество">
+										</div>
+										<div data-validate-for="dir_father" class="field-error"></div>
+									</div>
+
+									<div class="field">
+										<div class="ui input">
+											<input type="text" name="dir_email" placeholder="Email учреждения">
+										</div>
+										<div data-validate-for="dir_email" class="field-error"></div>
+									</div>
+
+								</div>
+
+								<div class="row">
+									<div class="col-12">
+										
+										<h4 class="section-title">Информация о постановочной группе</h4>
+										
+										<div class="row">
+											<div class="col-12">
+												<div class="group-btn add-btn" data-name="con"><i data-feather="plus"></i> Добавить концертмейстера</div>
+												<div class="group-btn add-btn" data-name="chor"><i data-feather="plus"></i> Добавить хореографа-постановщика</div>
+												<div class="group-btn add-btn" data-name="rep"><i data-feather="plus"></i> Добавить репетитора</div>
+												<div class="group-btn add-btn" data-name="prod"><i data-feather="plus"></i> Добавить режиссёра</div>				
+											</div>
+										</div>
+
+										<div class="con" style="display: none">
+											<div class="group-btn del-btn"><i data-feather="x"></i> Убрать концертмейстера</div>
+											<div class="three fields">
+												<div class="field">
+													<div class="ui input">
+														<input type="text" name="con_name" placeholder="Полное имя" disabled>
+													</div>
+													<div data-validate-for="con_name" class="field-error"></div>
+												</div>
+												<div class="field">
+													<div class="ui input">
+														<input type="text" name="con_surname" placeholder="Фамилия" disabled>
+													</div>
+													<div data-validate-for="con_surname" class="field-error"></div>
+												</div>
+												<div class="field">
+													<div class="ui input">
+														<input type="text" name="con_father" placeholder="Отчество" disabled>
+													</div>
+													<div data-validate-for="con_father" class="field-error"></div>
+												</div>
+											</div>
+										</div>
+
+										<div class="chor" style="display: none">
+											<div class="group-btn del-btn"><i data-feather="x"></i> Убрать хореографа-постановщика</div>
+											<div class="three fields">
+												<div class="field">
+													<div class="ui input">
+														<input type="text" name="chor_name" placeholder="Полное имя" disabled>
+													</div>
+													<div data-validate-for="chor_name" class="field-error"></div>
+												</div>
+												<div class="field">
+													<div class="ui input">
+														<input type="text" name="chor_surname" placeholder="Фамилия" disabled>
+													</div>
+													<div data-validate-for="chor_surname" class="field-error"></div>
+												</div>
+												<div class="field">
+													<div class="ui input">
+														<input type="text" name="chor_father" placeholder="Отчество" disabled>
+													</div>
+													<div data-validate-for="chor_father" class="field-error"></div>
+												</div>
+											</div>
+										</div>
+
+										<div class="rep" style="display: none">
+											<div class="group-btn del-btn"><i data-feather="x"></i> Убрать репетитора</div>
+											<div class="three fields">
+												<div class="field">
+													<div class="ui input">
+														<input type="text" name="rep_name" placeholder="Полное имя" disabled>
+													</div>
+													<div data-validate-for="rep_name" class="field-error"></div>
+												</div>
+												<div class="field">
+													<div class="ui input">
+														<input type="text" name="rep_surname" placeholder="Фамилия" disabled>
+													</div>
+													<div data-validate-for="rep_surname" class="field-error"></div>
+												</div>
+												<div class="field">
+													<div class="ui input">
+														<input type="text" name="rep_father" placeholder="Отчество" disabled>
+													</div>
+													<div data-validate-for="rep_father" class="field-error"></div>
+												</div>
+											</div>
+										</div>
+
+										<div class="prod" style="display: none">
+											<div class="group-btn del-btn"><i data-feather="x"></i> Убрать режиссёра</div>
+											<div class="three fields">
+												<div class="field">
+													<div class="ui input">
+														<input type="text" name="prod_name" placeholder="Полное имя" disabled>
+													</div>
+													<div data-validate-for="prod_name" class="field-error"></div>
+												</div>
+												<div class="field">
+													<div class="ui input">
+														<input type="text" name="prod_surname" placeholder="Фамилия" disabled>
+													</div>
+													<div data-validate-for="prod_surname" class="field-error"></div>
+												</div>
+												<div class="field">
+													<div class="ui input">
+														<input type="text" name="prod_father" placeholder="Отчество" disabled>
+													</div>
+													<div data-validate-for="prod_father" class="field-error"></div>
+												</div>
+											</div>
+										</div>
+
+									</div>
+								</div>
+
+							</div>
+						</div>
+
+					</div>
+				</div>
+
+				<input type="submit" value="Отправить заявку">
+			  <p class="submit-info">Отправляя форму, вы даёте согласие на обработку своих персональных данных.</p>
+
+			</form>
+
+		</div>
+	</div>
+</div>
+{% endif %}
+
+{% put scripts %}
+<script>function fileEvent(){$("label[for=form_imgs] + p").html("Прикреплённые файлы: "),$.each($("input[type=file]")[0].files,function(e,t){$("label[for=form_imgs] + p").append(t.name+" ")})}$(".ui.dropdown").dropdown(),$(window).on("ajaxInvalidField",function(e,t,n,i,o){$(t).parent().addClass("error"),$(t).parent().next(".field-error").show(),$("input[type=submit]").removeAttr("disabled")}),$(document).on("input",".ui.form .error input, .ui.form .error textarea",function(){$(this).parent().removeClass("error"),$(this).parent().next(".field-error").hide()}),$(document).on("click",".ui.dropdown.error",function(){$(this).removeClass("error"),$(this).parent().next(".field-error").hide()}),$(".part_place").dropdown({onChange:function(e){0==e?($(".road_time").find("input").attr("disabled",!0),$(".road_time").hide()):($(".road_time").show(),$(".road_time").find("input").removeAttr("disabled"))}}),$(".nomination").dropdown({onChange:function(e){switch($(".subnomination").find("select, input").removeAttr("disabled"),$(".subnomination").find(".disabled").removeClass("disabled"),$(".subnomination").show(),$(".instruments").find("select, input").attr("disabled",!0),$(".instruments").hide(),$(".form_imgs").hide(),$(".form_imgs").find("input").attr("disabled",!0),$("select[name=subnomin] option:not(:first)").remove(),$(".subnomin").dropdown("clear"),e){case"0":$.each(["Песня","Романс","Ария","Народная лирическая","Народная игровая","Фольклор","Этно","Авторская песня","Патриотическая песня","Песни родного Красноярья","Советское ретро","Христианское песнопение","Детская песня","Детская песня","Поп-Рок","Зарубежная эстрада","Джаз","Песня народов мира","Одна для всех","Шоу"],function(e,t){$("select[name=subnomin]").append($("<option></option>").attr("value",e).text(t))});break;case"3":$.each(["Проза","Поэзия","Сказ","Литературно-музыкальная композиция",'"Слово родного Красноярья"'],function(e,t){$("select[name=subnomin]").append($("<option></option>").attr("value",e).text(t))});break;case"4":$.each(["Академический, драматический театр","Водевиль","Театр - МИМ","Мюзикл","Мистерия","Сказка","Театр современной пьесы","Театр кукол","Этнотеатр и фольклор","Оригинальный жанр","Театр пародии","Театр Моды"],function(e,t){$("select[name=subnomin]").append($("<option></option>").attr("value",e).text(t))});break;case"5":$.each(["Пластический этюд","Жонгляж","Каучук","Клоунада","Дрессура","Акробатика","Эквилибр","Антипод"],function(e,t){$("select[name=subnomin]").append($("<option></option>").attr("value",e).text(t))});break;case"6":$.each(["Детский, сюжетный танец","Спортивно-современный танец","Современный танец","Стилизованный танец","Театр танца","Эстрадный танец","Бальный танец","Сценический  народный танец","Фольклор; Этнотанец","Танец народов мира","Танцевальное шоу"],function(e,t){$("select[name=subnomin]").append($("<option></option>").attr("value",e).text(t))});break;case"1":$(".subnomination").find("select").attr("disabled",!0),$(".subnomination").hide(),$(".instruments").find("select, input").removeAttr("disabled"),$(".instruments").find(".disabled").removeClass("disabled"),$(".instruments").show();break;case"2":$(".subnomination").find("select").attr("disabled",!0),$(".subnomination").hide(),$(".form_imgs").show(),$(".form_imgs").find("input").removeAttr("disabled")}}}),feather.replace(),$(document).on("click",".add-btn",function(){$("."+$(this).attr("data-name")).show().find("input").removeAttr("disabled"),$(this).hide()}),$(document).on("click",".del-btn",function(){$(this).parent().find("input").attr("disabled",!0),$(this).parent().hide(),$(".add-btn[data-name="+$(this).parent().attr("class")+"]").show()}),$(".education").dropdown({onChange:function(e){"2"==e?($(".head_info h4").html("Информация об участнике"),$(".head_info > .fields:first-of-type(), .head_info > .fields:nth-of-type(2)").hide().find("input").attr("disabled",!0),$(".head_info input[name=head_phone]").attr("disabled",!0).closest(".field").hide()):($(".head_info h4").html("Информация о руководителе"),$(".head_info > .fields:first-of-type(), .head_info > .fields:nth-of-type(2)").show().find("input").removeAttr("disabled"),$(".head_info input[name=head_phone]").removeAttr("disabled").closest(".field").show())}}),$(document).on("ajaxPromise","[data-request]",function(){if(1==$("input[type=submit]").attr("disabled"))return!1;$("input[type=submit]").attr("disabled",!0)});</script>
+{% endput %}

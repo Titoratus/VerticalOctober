@@ -1,0 +1,37 @@
+title = "status"
+url = "/status"
+layout = "default"
+is_hidden = 0
+==
+use Estar\Vertical\Models\Form;
+
+function onStart()
+{
+	$this['nothome'] = 1;
+}
+
+function onCheck()
+{
+	if (Form::where('id', post('fid'))->count() > 0)
+		return ['.result' => Form::where('id', post('fid'))->get(['confirmed'])[0]['confirmed'] == 1 ? "<span class='status-success'>Заявка подтверждена!</span>" : "<span class='status-warn'>Заявка ещё не подтверждена.</span>"];
+	else return ['.result' => "<span class='status-error'>Такой заявки не существует.</span>"];
+}
+==
+<div class="container">
+	<div class="row">
+		<div class="col-md-3">
+
+			<h4>Узнать статус заявки</h4>
+
+			<form method="POST" data-request="onCheck" class="ui form check-status">
+				<div class="ui action input">
+				  <input type="text" name="fid" placeholder="Введите номер заявки">
+				  <button class="ui button large">Проверить</button>
+				</div>
+			</form>
+
+			<div class="result"></div>
+			
+		</div>
+	</div>
+</div>
